@@ -19,15 +19,24 @@ export const useHotspotState = (
     initialValue?.image || null,
   );
 
+  const getToken = () => (localStorage.getItem("jwtToken") ?? '').replaceAll('"', '')
+
   useEffect(() => {
     const fetchImageData = async () => {
       if (imageId && typeof imageId === "string") {
         try {
           const response = await fetch(
-            `/api/upload/files?filters[documentId][$eq]=${imageId}`,
+            `/upload/files?filters[documentId][$eq]=${imageId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${getToken()}`,
+              }
+            }
           );
           if (response.ok) {
-            const data = await response.json();
+            const {
+              results: data
+            } = await response.json();
             if (data.length > 0) {
               setImageData(data[0]);
             } else {
